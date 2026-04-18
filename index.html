@@ -1,506 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Snakio</title>
+<title>Snakio Chat</title>
 
 <style>
-body {
-  margin: 0;
-  overflow: hidden;
-  font-family: system-ui, Arial;
-  background: #060912;
-  color: #e6e6e6;
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#060912;
+  color:white;
+  overflow:hidden;
 }
 
-/* ===== GRID BACKGROUND ===== */
-body::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(122,162,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(122,162,255,0.05) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: drift 10s linear infinite;
-  pointer-events: none;
+/* grid background */
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(122,162,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122,162,255,.05) 1px, transparent 1px);
+  background-size:60px 60px;
 }
 
-@keyframes drift {
-  from { transform: translateY(0); }
-  to { transform: translateY(60px); }
+/* LOGIN */
+#login{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-/* ===== MENU ===== */
-#menu {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-left: 10%;
+.box{
+  width:320px;
+  padding:20px;
+  border-radius:16px;
+  background:rgba(10,15,25,.9);
+  border:1px solid rgba(122,162,255,.2);
 }
 
-.menu-box {
-  transform: translateY(-30px);
-  z-index: 2;
-}
-
-.title {
-  font-size: 72px;
-  letter-spacing: 10px;
-  color: #7aa2ff;
-  text-shadow: 0 0 15px rgba(122,162,255,0.5);
-  animation: flicker 3s infinite;
-}
-
-@keyframes flicker {
-  0%,100% { opacity: 1; }
-  94% { opacity: 0.4; }
-  96% { opacity: 1; }
-}
-
-/* ===== BUTTONS ===== */
-.btn {
-  display: block;
-  width: 240px;
-  padding: 14px;
-  margin: 12px 0;
-  border-radius: 16px;
-  border: 1px solid rgba(122,162,255,0.25);
-  background: rgba(15,20,35,0.6);
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.25s;
-  backdrop-filter: blur(10px);
-}
-
-.btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 25px rgba(122,162,255,0.25);
-}
-
-/* ===== SETTINGS ===== */
-#settings {
-  position: absolute;
-  left: 10%;
-  top: 60%;
-  width: 260px;
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(10,15,25,0.85);
-  border: 1px solid rgba(122,162,255,0.2);
-  backdrop-filter: blur(10px);
-  display: none;
-}
-
-/* ===== MULTI ===== */
-#multi {
-  position: absolute;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.65);
-}
-
-.multiBox {
-  width: 650px;
-  height: 420px;
-  background: rgba(10,15,25,0.95);
-  border: 1px solid rgba(122,162,255,0.3);
-  border-radius: 16px;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.room {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-}
-
-.joinBtn{
-  padding:10px 16px;
-  border:none;
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
   border-radius:10px;
+  border:none;
+  background:#111a2a;
+  color:white;
+}
+
+button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:10px;
+  border:none;
   background:#7aa2ff;
-  color:#06111d;
   font-weight:700;
   cursor:pointer;
 }
 
-/* ===== GAME ===== */
-#game {
-  display: none;
+/* CHAT */
+#chat{
+  display:none;
+  height:100vh;
+  flex-direction:column;
 }
 
-canvas {
-  display: block;
+#messages{
+  flex:1;
+  overflow:auto;
+  padding:20px;
 }
 
-#hud {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(122,162,255,0.2);
-  backdrop-filter: blur(8px);
+.msg{
+  margin:10px 0;
+  padding:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
 }
 
-#homeBtn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(122,162,255,0.2);
-  border: none;
-  color: white;
-  cursor: pointer;
+.name{
+  font-weight:800;
+  color:#7aa2ff;
+  cursor:pointer;
 }
 
-.vignette {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7));
+.time{
+  font-size:12px;
+  opacity:.5;
+}
+
+/* bottom bar */
+#bar{
+  display:flex;
+  padding:10px;
+  background:rgba(0,0,0,.4);
+}
+
+#text{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#111a2a;
+  color:white;
+}
+
+#plus{
+  width:40px;
+  height:40px;
+  margin-left:8px;
+  border-radius:50%;
+  background:#7aa2ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:20px;
+  font-weight:900;
+}
+
+#send{
+  margin-left:8px;
+  padding:0 16px;
+  border-radius:10px;
+  border:none;
+  background:#5dffb2;
+  font-weight:800;
+}
+
+/* DM popup */
+#dm{
+  position:absolute;
+  right:10px;
+  bottom:80px;
+  width:260px;
+  background:rgba(10,15,25,.95);
+  border:1px solid rgba(122,162,255,.2);
+  border-radius:12px;
+  display:none;
+  padding:10px;
+}
+
+.toast{
+  position:absolute;
+  left:10px;
+  top:10px;
+  padding:10px;
+  background:#7aa2ff;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENU -->
-<div id="menu">
-  <div class="menu-box">
-    <div class="title">SNAKIO</div>
-
-    <button class="btn" onclick="startSolo()">Play</button>
-    <button class="btn" onclick="openMulti()">Multiplayer</button>
-    <button class="btn" onclick="toggleSettings()">Settings</button>
-
-    <div id="settings">
-      <div>Settings</div>
-      <div class="btn" onclick="setColor('blue')">Snake Blue</div>
-      <div class="btn" onclick="setColor('purple')">Snake Purple</div>
-      <div class="btn" onclick="setColor('green')">Snake Green</div>
-    </div>
+<!-- LOGIN -->
+<div id="login">
+  <div class="box">
+    <h2>Snakio Chat</h2>
+    <input id="name" placeholder="username">
+    <button onclick="join()">Sign up</button>
   </div>
 </div>
 
-<!-- MULTI -->
-<div id="multi">
-  <div class="multiBox">
-    <h2>Rooms</h2>
-    <div id="roomList"></div>
-    <hr>
-    <button class="btn" onclick="createRoom()">Create Room</button>
-    <button class="btn" onclick="joinCode()">Join Private Code</button>
-    <button class="btn" onclick="closeMulti()">Close</button>
+<!-- CHAT -->
+<div id="chat">
+  <div id="messages"></div>
+
+  <div id="bar">
+    <div id="plus">+</div>
+    <input id="text" placeholder="message...">
+    <button id="send">Send</button>
   </div>
 </div>
 
-<!-- GAME -->
-<div id="game">
-  <div id="hud">Apples: 0 | Size: 25</div>
-  <button id="homeBtn" onclick="home()">Home</button>
-  <canvas id="c"></canvas>
-  <div class="vignette"></div>
-</div>
+<!-- DM BOX -->
+<div id="dm"></div>
 
 <script>
-/* ===========================
-   CHANGE THIS
-=========================== */
-const WS_URL = "wss://YOUR-RENDER-URL";
+const ws = new WebSocket("wss://YOUR-RENDER-URL");
 
-/* =========================== */
-let snakeColor = "#7aa2ff";
-const multi = document.getElementById("multi");
-const roomList = document.getElementById("roomList");
-const menu = document.getElementById("menu");
-const game = document.getElementById("game");
-const settings = document.getElementById("settings");
-const hud = document.getElementById("hud");
+let myName = "";
+let dmTo = null;
 
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+ws.onmessage = (e)=>{
+  const d = JSON.parse(e.data);
 
-let w,h;
-function resize(){
-  w=canvas.width=innerWidth;
-  h=canvas.height=innerHeight;
-}
-addEventListener("resize",resize);
-resize();
-
-/* ===== SOCKET ===== */
-let ws;
-let myId = null;
-let players = {};
-let apples = [];
-let currentRoom = null;
-let multiplayer = false;
-
-function connect(){
-  ws = new WebSocket(WS_URL);
-
-  ws.onmessage = (e)=>{
-    const data = JSON.parse(e.data);
-
-    if(data.type==="welcome") myId=data.id;
-    if(data.type==="rooms") renderRooms(data.rooms);
-
-    if(data.type==="roomCreated"){
-      currentRoom=data.code;
-      startMulti();
-    }
-
-    if(data.type==="joined"){
-      currentRoom=data.room;
-      startMulti();
-    }
-
-    if(data.type==="state"){
-      players=data.players;
-      apples=data.apples;
-    }
-  };
-}
-connect();
-
-/* ===== MENU ===== */
-function toggleSettings(){
-  settings.style.display =
-    settings.style.display==="block"?"none":"block";
-}
-
-function setColor(c){
-  snakeColor =
-    c==="blue"?"#7aa2ff":
-    c==="purple"?"#c77dff":
-    "#5dffb2";
-}
-
-function startSolo(){
-  multiplayer=false;
-  menu.style.display="none";
-  game.style.display="block";
-  initSolo();
-}
-
-function openMulti(){
-  multi.style.display="flex";
-  ws.send(JSON.stringify({type:"getRooms"}));
-}
-
-function closeMulti(){
-  multi.style.display="none";
-}
-
-/* ===== ROOMS ===== */
-function renderRooms(rooms){
-  roomList.innerHTML="";
-
-  if(!rooms.length){
-    roomList.innerHTML="<div>No rooms yet</div>";
-    return;
+  if(d.type==="msg"){
+    addMsg(d.from,d.time,d.text);
   }
 
-  rooms.forEach(r=>{
-    let div=document.createElement("div");
-    div.className="room";
-    div.innerHTML=`
-      <div>
-        <div>${r.name}</div>
-        <div>${r.players}/${r.max}</div>
-      </div>
-      <button class="joinBtn" onclick="joinRoom('${r.code}')">Join</button>
-    `;
-    roomList.appendChild(div);
-  });
-}
-
-function createRoom(){
-  let max = prompt("Max Players?");
-  if(!max) return;
-
-  let priv = confirm("Private room?\nOK=yes Cancel=no");
-
-  ws.send(JSON.stringify({
-    type:"createRoom",
-    name:"Room",
-    max:+max,
-    private:priv
-  }));
-}
-
-function joinRoom(code){
-  ws.send(JSON.stringify({
-    type:"joinRoom",
-    code
-  }));
-}
-
-function joinCode(){
-  let code = prompt("Room Code?");
-  if(!code) return;
-  joinRoom(code);
-}
-
-/* ===== GAME ===== */
-let snake,dir,food,count=0;
-
-function initSolo(){
-  snake=[];
-  for(let i=0;i<25;i++) snake.push({x:w/2,y:h/2});
-  dir={x:1,y:0};
-  food=rand();
-  count=0;
-  requestAnimationFrame(loop);
-}
-
-function startMulti(){
-  multiplayer=true;
-  multi.style.display="none";
-  menu.style.display="none";
-  game.style.display="block";
-  requestAnimationFrame(loop);
-}
-
-function rand(){
-  return {x:Math.random()*w,y:Math.random()*h};
-}
-
-addEventListener("keydown",e=>{
-  let d=null;
-
-  if(e.key==="w") d={x:0,y:-1};
-  if(e.key==="s") d={x:0,y:1};
-  if(e.key==="a") d={x:-1,y:0};
-  if(e.key==="d") d={x:1,y:0};
-
-  if(!d) return;
-
-  if(multiplayer){
-    ws.send(JSON.stringify({
-      type:"input",
-      dir:d
-    }));
-  }else{
-    dir=d;
-  }
-});
-
-function loop(){
-  if(game.style.display==="none") return;
-
-  if(multiplayer){
-    drawMulti();
-  }else{
-    updateSolo();
-    drawSolo();
+  if(d.type==="system"){
+    addSys(d.msg);
   }
 
-  requestAnimationFrame(loop);
-}
-
-/* ===== SOLO ===== */
-function updateSolo(){
-  let h0=snake[0];
-  let nx=h0.x+dir.x*3;
-  let ny=h0.y+dir.y*3;
-
-  snake.unshift({x:nx,y:ny});
-
-  if(Math.hypot(nx-food.x,ny-food.y)<20){
-    food=rand();
-    count++;
-  }else{
-    snake.pop();
+  if(d.type==="dm"){
+    showToast("DM from "+d.from);
+    openDM(d.from,d.text);
   }
+};
 
-  for(let i=8;i<snake.length;i++){
-    if(Math.hypot(nx-snake[i].x,ny-snake[i].y)<10){
-      initSolo();
-      return;
-    }
-  }
+function join(){
+  myName = document.getElementById("name").value;
+  ws.send(JSON.stringify({type:"join",name:myName}));
 
-  hud.innerText=`Apples: ${count} | Size: ${snake.length}`;
+  document.getElementById("login").style.display="none";
+  document.getElementById("chat").style.display="flex";
 }
 
-function drawSolo(){
-  ctx.fillStyle="#060912";
-  ctx.fillRect(0,0,w,h);
+function addMsg(name,time,text){
+  const div=document.createElement("div");
+  div.className="msg";
 
-  drawApple(food.x,food.y);
+  div.innerHTML=`
+    <div class="name" onclick="openProfile('${name}')">${name}</div>
+    <div class="time">${time}</div>
+    <div>${text}</div>
+  `;
 
-  for(let i=0;i<snake.length;i++){
-    drawSeg(snake[i],i,snake.length,snakeColor);
-  }
+  document.getElementById("messages").appendChild(div);
 }
 
-/* ===== MULTI ===== */
-function drawMulti(){
-  ctx.fillStyle="#060912";
-  ctx.fillRect(0,0,w,h);
-
-  apples.forEach(a=>drawApple(a.x,a.y));
-
-  for(let id in players){
-    let p=players[id];
-    let col=id===myId?snakeColor:"#ffffff";
-
-    for(let i=0;i<p.body.length;i++){
-      drawSeg(p.body[i],i,p.body.length,col);
-    }
-  }
-
-  if(players[myId]){
-    hud.innerText =
-      `Apples: ${players[myId].score} | Size: ${players[myId].body.length}`;
-  }
+function addSys(msg){
+  const div=document.createElement("div");
+  div.className="msg";
+  div.innerHTML="SYSTEM: "+msg;
+  document.getElementById("messages").appendChild(div);
 }
 
-function drawApple(x,y){
-  ctx.fillStyle="#7aa2ff";
-  ctx.beginPath();
-  ctx.arc(x,y,10,0,Math.PI*2);
-  ctx.fill();
+/* SEND */
+document.getElementById("send").onclick=()=>{
+  const t=document.getElementById("text").value;
+  ws.send(JSON.stringify({type:"msg",text:t}));
+  document.getElementById("text").value="";
+};
+
+/* PROFILE */
+function openProfile(name){
+  dmTo=name;
+  const dm=document.getElementById("dm");
+  dm.style.display="block";
+  dm.innerHTML=`
+    <h3>${name}</h3>
+    <button onclick="startDM()">DM</button>
+  `;
 }
 
-function drawSeg(p,i,len,col){
-  const a = 1-i/len;
-
-  const rgb = hex(col);
-  ctx.fillStyle=`rgba(${rgb.r},${rgb.g},${rgb.b},${a})`;
-
-  ctx.beginPath();
-  ctx.arc(p.x,p.y,10,0,Math.PI*2);
-  ctx.fill();
+function startDM(){
+  const msg=prompt("message:");
+  ws.send(JSON.stringify({type:"dm",to:dmTo,text:msg}));
 }
 
-function hex(c){
-  c=c.replace("#","");
-  return {
-    r:parseInt(c.slice(0,2),16),
-    g:parseInt(c.slice(2,4),16),
-    b:parseInt(c.slice(4,6),16)
-  };
+/* DM UI */
+function openDM(from,text){
+  const dm=document.getElementById("dm");
+  dm.style.display="block";
+  dm.innerHTML=`
+    <b>DM from ${from}</b>
+    <div>${text}</div>
+    <button onclick="this.parentNode.style.display='none'">close</button>
+  `;
 }
 
-function home(){
-  game.style.display="none";
-  menu.style.display="flex";
+/* toast */
+function showToast(t){
+  const div=document.createElement("div");
+  div.className="toast";
+  div.innerText=t;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),3000);
 }
 </script>
 
